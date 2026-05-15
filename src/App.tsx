@@ -247,7 +247,7 @@ const ServiceCard = ({
         
         <div className="relative z-10">
           <div className="mb-10 text-[#B9EE01] transition-transform duration-500 ease-out group-hover:translate-x-2">
-            {React.cloneElement(icon as React.ReactElement, { size: 44, strokeWidth: 1.5 })}
+            {React.cloneElement(icon as any, { size: 44, strokeWidth: 1.5 })}
           </div>
           <h3 className="text-4xl font-teko uppercase font-bold mb-6 tracking-wide">{title}</h3>
           <ul className={`space-y-3 font-telegraf text-sm uppercase tracking-[0.15em] transition-opacity group-hover:opacity-100 ${darkMode ? "opacity-70" : "opacity-90"}`}>
@@ -274,7 +274,7 @@ const App: React.FC = () => {
       setShowBackToTop(offset > 400);
     };
 
-    const link = document.querySelector("link[rel*='icon']") || document.createElement('link');
+    const link = (document.querySelector("link[rel*='icon']") as HTMLLinkElement) || document.createElement('link');
     link.type = 'image/svg+xml';
     link.rel = 'icon';
     link.href = '/green-chevron.svg';
@@ -298,7 +298,6 @@ const App: React.FC = () => {
     
   const textColor = "#FFFFFF"; 
   const cardBg = darkMode ? "rgba(15, 15, 15, 0.6)" : "rgba(255, 255, 255, 0.15)";
-  const borderColor = darkMode ? "rgba(185, 238, 1, 0.15)" : "rgba(255, 255, 255, 0.3)";
   const glowColor = darkMode ? primaryGreen : "#00FF41";
 
   // Typography Constants
