@@ -682,15 +682,15 @@ const App: React.FC = () => {
         </div>
       </section>
 
-      <section className="py-12 md:py-20 overflow-hidden z-20">
+      <section className="py-12 md:py-20 overflow-hidden bg-white/[0.03] z-20">
         <div className="flex whitespace-nowrap animate-infinite-scroll">
           {[1,2,3,4].map(i => (
             <div key={i} className="flex items-center gap-16 px-8">
-              <span className="text-5xl md:text-6xl font-teko uppercase opacity-30 font-bold blur-scroll reveal-item">Innovation</span>
-              <span className="text-5xl md:text-6xl font-teko uppercase opacity-30 font-bold blur-scroll reveal-item">Scale</span>
+              <span className="text-5xl md:text-6xl font-teko uppercase opacity-30 font-bold blur-scroll">Innovation</span>
+              <span className="text-5xl md:text-6xl font-teko uppercase opacity-30 font-bold blur-scroll">Scale</span>
             </div>
           ))}
-        </div>
+        </div>           
       </section>
 
       <footer id="contact" className="pt-20 md:pt-40 pb-12 relative overflow-hidden z-20">
