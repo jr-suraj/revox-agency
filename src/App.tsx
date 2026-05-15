@@ -106,8 +106,6 @@ const GlobalBackground = ({ darkMode, glowColor }: { darkMode: boolean; glowColo
 
   return (
     <div className="fixed inset-0 z-0 pointer-events-none select-none overflow-hidden" ref={containerRef}>
-      
-      {/* SVG Filter for Underwater Motion Distortion (Expanded bounds to prevent edge box effect) */}
       <svg className="hidden">
         <filter id="water-ripple" x="-20%" y="-20%" width="140%" height="140%">
           <feTurbulence type="fractalNoise" baseFrequency="0.005" numOctaves="3" result="noise">
@@ -249,8 +247,8 @@ const ServiceCard = ({
           <div className="mb-10 text-[#B9EE01] transition-transform duration-500 ease-out group-hover:translate-x-2">
             {React.cloneElement(icon as any, { size: 44, strokeWidth: 1.5 })}
           </div>
-          <h3 className="text-4xl font-teko uppercase font-bold mb-6 tracking-wide">{title}</h3>
-          <ul className={`space-y-3 font-telegraf text-sm uppercase tracking-[0.15em] transition-opacity group-hover:opacity-100 ${darkMode ? "opacity-70" : "opacity-90"}`}>
+          <h3 className="text-4xl font-teko uppercase font-bold mb-6 tracking-wide leading-[0.8] blur-scroll reveal-item">{title}</h3>
+          <ul className={`space-y-3 font-telegraf text-sm uppercase tracking-[0.15em] transition-opacity group-hover:opacity-100 ${darkMode ? "opacity-70" : "opacity-90"} blur-scroll reveal-item`}>
             {items.map((item: string, i: number) => <li key={i}>{item}</li>)}
           </ul>
         </div>
@@ -260,19 +258,56 @@ const ServiceCard = ({
 };
 
 const App: React.FC = () => {
-  const [darkMode, setDarkMode] = useState(true);
+  const [darkMode, setDarkMode] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [scrollOffset, setScrollOffset] = useState(0);
   const [showBackToTop, setShowBackToTop] = useState(false);
+  
+  // Track scroll velocity for blur effect
+  const lastScrollY = useRef(0);
+  const lastTime = useRef(Date.now());
 
   useEffect(() => {
+    // 1. SCROLL VELOCITY BLUR TRACKING
     const handleScroll = () => {
       const offset = window.scrollY;
+      const currentTime = Date.now();
+      const deltaTime = currentTime - lastTime.current;
+      
+      if (deltaTime > 0) {
+        const deltaY = Math.abs(offset - lastScrollY.current);
+        const velocity = deltaY / deltaTime; // px per ms
+        
+        // Apply blur variable to document root
+        const blurAmount = Math.min(velocity * 4.5, 4); // Max 4px blur
+        document.documentElement.style.setProperty('--scroll-blur', `${blurAmount}px`);
+      }
+
       setScrolled(offset > 50);
       setScrollOffset(offset);
       setShowBackToTop(offset > 400);
+      
+      lastScrollY.current = offset;
+      lastTime.current = currentTime;
+
+      // Reset velocity after scrolling stops
+      clearTimeout((window as any).scrollBlurTimeout);
+      (window as any).scrollBlurTimeout = setTimeout(() => {
+        document.documentElement.style.setProperty('--scroll-blur', `0px`);
+      }, 50);
     };
+
+    // 2. MOVIE INTRO REVEAL OBSERVER
+    const revealObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('reveal-active');
+        }
+      });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.reveal-item').forEach(el => revealObserver.observe(el));
 
     const link = (document.querySelector("link[rel*='icon']") as HTMLLinkElement) || document.createElement('link');
     link.type = 'image/svg+xml';
@@ -281,7 +316,10 @@ const App: React.FC = () => {
     if (!document.head.contains(link)) document.head.appendChild(link);
 
     window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      revealObserver.disconnect();
+    };
   }, []);
 
   const toggleTheme = () => setDarkMode(!darkMode);
@@ -291,21 +329,21 @@ const App: React.FC = () => {
   const primaryGreen = "#B9EE01";
   const bgColor = darkMode ? "#000000" : "#3500EE";
   
-  // Page gradient simulating "diving into the sea" for light mode
+  // Page gradient simulating "diving into the sea" (adjusted footer darkness)
   const pageBackground = darkMode 
     ? "#000000" 
-    : "linear-gradient(to bottom, #3500EE 0%, #2000A8 40%, #0F0060 75%, #09003B 100%)";
+    : "linear-gradient(to bottom, #3500EE 0%, #2500C0 40%, #1A008F 75%, #100060 100%)";
     
   const textColor = "#FFFFFF"; 
   const cardBg = darkMode ? "rgba(15, 15, 15, 0.6)" : "rgba(255, 255, 255, 0.15)";
   const glowColor = darkMode ? primaryGreen : "#00FF41";
 
   // Typography Constants
-  const headingScale = "text-6xl md:text-8xl font-teko uppercase font-bold leading-[0.75]";
-  const sectionLabel = "text-[#B9EE01] font-bold tracking-[0.4em] uppercase text-sm mb-3 block";
+  const headingScale = "text-6xl md:text-8xl font-teko uppercase font-bold leading-[0.8]";
+  const sectionLabel = "text-[#B9EE01] font-bold tracking-[0.4em] uppercase text-sm mb-3 block reveal-item";
   const descColor = darkMode ? "text-white/60" : "text-white";
-  const descTypography = `text-xl md:text-2xl leading-snug max-w-lg ${descColor}`;
-  const primaryBtn = "group px-10 py-5 bg-[#B9EE01] text-black font-bold uppercase tracking-widest text-[10px] flex items-center justify-center gap-3 transition-all active:scale-[0.96] overflow-hidden relative select-none cursor-pointer";
+  const descTypography = `text-xl md:text-2xl leading-snug max-w-lg ${descColor} reveal-item`;
+  const primaryBtn = "group px-10 py-5 bg-[#B9EE01] text-black font-bold uppercase tracking-widest text-[14px] flex items-center justify-center gap-3 transition-all active:scale-[0.96] overflow-hidden relative select-none cursor-pointer";
 
   // Project Data
   const projects = [
@@ -357,6 +395,33 @@ const App: React.FC = () => {
           .font-teko { font-family: 'Teko', sans-serif; }
           .font-space { font-family: 'Space Grotesk', sans-serif; }
 
+          /* Motion Blur Dynamic Variable */
+          .blur-scroll {
+            filter: blur(var(--scroll-blur, 0px));
+            transition: filter 0.05s ease-out;
+            will-change: filter;
+          }
+
+          /* MOVIE INTRO TEXT EFFECT (007 Style) */
+          .reveal-item {
+            opacity: 0;
+            filter: blur(40px);
+            transform: translateY(30px) scale(1.05);
+            letter-spacing: 0.15em;
+            transition: opacity 1.8s cubic-bezier(0.16, 1, 0.3, 1), 
+                        filter 2.2s cubic-bezier(0.16, 1, 0.3, 1), 
+                        transform 1.8s cubic-bezier(0.16, 1, 0.3, 1), 
+                        letter-spacing 2.2s cubic-bezier(0.16, 1, 0.3, 1);
+            will-change: opacity, filter, transform, letter-spacing;
+          }
+
+          .reveal-item.reveal-active {
+            opacity: 1;
+            filter: blur(0);
+            transform: translateY(0) scale(1);
+            letter-spacing: inherit;
+          }
+
           .neon-text-glow {
             text-shadow: 0 0 20px ${glowColor}66;
           }
@@ -371,18 +436,9 @@ const App: React.FC = () => {
 
           /* Fluid Water Drop Morphing & Rotating Animation */
           @keyframes water-drop-morph {
-            0% { 
-              border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; 
-              transform: rotate(0deg) scale(1);
-            }
-            50% { 
-              border-radius: 30% 70% 70% 30% / 30% 70% 30% 70%; 
-              transform: rotate(180deg) scale(1.05);
-            }
-            100% { 
-              border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; 
-              transform: rotate(360deg) scale(1);
-            }
+            0% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; transform: rotate(0deg) scale(1); }
+            50% { border-radius: 30% 70% 70% 30% / 30% 70% 30% 70%; transform: rotate(180deg) scale(1.05); }
+            100% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; transform: rotate(360deg) scale(1); }
           }
           .water-drop-cursor {
             animation: water-drop-morph 10s infinite linear;
@@ -403,11 +459,23 @@ const App: React.FC = () => {
             mask-image: linear-gradient(to top, black, transparent);
             -webkit-mask-image: linear-gradient(to top, black, transparent);
           }
+
+          /* Reset for browser autofill white background */
+          input:-webkit-autofill,
+          input:-webkit-autofill:hover, 
+          input:-webkit-autofill:focus,
+          textarea:-webkit-autofill,
+          textarea:-webkit-autofill:hover,
+          textarea:-webkit-autofill:focus {
+            -webkit-box-shadow: 0 0 0px 1000px ${bgColor} inset !important;
+            -webkit-text-fill-color: #fff !important;
+            caret-color: #fff !important;
+            transition: background-color 5000s ease-in-out 0s;
+          }
         `}
       </style>
 
-      <button 
-        onClick={scrollToTop}
+      <button onClick={scrollToTop}
         className={`fixed bottom-8 right-8 z-[120] w-12 h-12 flex items-center justify-center bg-black/40 backdrop-blur-md border border-[#B9EE01] transition-all duration-500 rounded-sm group cursor-pointer ${showBackToTop ? 'translate-y-0 opacity-100' : 'translate-y-20 opacity-0 pointer-events-none'}`}
       >
         <ChevronUp size={20} className="text-[#B9EE01] transition-transform duration-300 group-hover:-translate-y-1" strokeWidth={3} />
@@ -452,26 +520,22 @@ const App: React.FC = () => {
             if (next) next.style.display = 'block';
           }}
         />
-        <svg width="600" height="800" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className="hidden opacity-15">
-          <path d="M10 10L60 50L10 90" stroke={primaryGreen} strokeWidth="12" strokeLinecap="square" style={{ filter: `drop-shadow(0 0 30px ${glowColor}44)` }} />
-        </svg>
       </div>
 
       {/* Navigation */}
       <nav 
-        className={`fixed w-full z-[100] transition-all duration-500 flex items-center ${scrolled ? 'py-3' : 'py-5'}`}
-        style={{ 
-          backgroundColor: scrolled ? (darkMode ? 'rgba(0,0,0,0.9)' : 'rgba(53,0,238,0.95)') : 'transparent', 
-          minHeight: scrolled ? '70px' : '90px' 
-        }}
+        className={`fixed w-full z-[100] transition-all duration-500 flex items-center pointer-events-none ${
+          scrolled ? 'py-3 min-h-[70px]' : 'py-5 min-h-[90px]'
+        } ${
+          scrolled 
+            ? (darkMode ? 'max-lg:bg-black/90 lg:bg-transparent' : 'max-lg:bg-[#3500EE]/95 lg:bg-transparent') 
+            : 'bg-transparent'
+        }`}
       >
         <div className="w-full px-6 flex justify-between items-center h-full">
           <Logo sizeClass="h-8" textClass="text-3xl" brandColor={primaryGreen} className="pointer-events-auto" />
 
-          <div className="flex items-center gap-6 md:gap-8 h-full">
-            <button className="hidden sm:block text-[11px] font-bold uppercase tracking-[0.2em] font-telegraf hover:text-[#B9EE01] transition-colors underline underline-offset-[6px] decoration-1 cursor-pointer">
-              Start Project
-            </button>
+          <div className="flex items-center gap-6 md:gap-8 h-full pointer-events-auto">
             <button onClick={toggleTheme} className="p-2 rounded-full border border-current opacity-80 hover:opacity-100 hover:text-[#B9EE01] hover:border-[#B9EE01] transition-all flex items-center justify-center cursor-pointer">
               {darkMode ? <Lightbulb size={14} /> : <Moon size={14} />}
             </button>
@@ -489,9 +553,21 @@ const App: React.FC = () => {
       <div className={`fixed inset-0 z-[90] flex flex-col justify-center items-center px-6 transition-all duration-700 origin-top ${isMenuOpen ? 'scale-y-100 opacity-100' : 'scale-y-0 opacity-0 pointer-events-none'}`} style={{ backgroundColor: bgColor }}>
         <ChevronPattern color={glowColor} />
         <div className="flex flex-col gap-4 text-center relative z-10 w-full max-w-4xl">
-          {['Services', 'Work', 'Approach', 'Contact'].map((item, idx) => (
+          {['Services', 'Work', 'Approach', 'Contact', 'Start Project'].map((item, idx) => (
             <div key={item} className="overflow-hidden py-2">
-              <a href={`#${item.toLowerCase()}`} className={`block text-3xl md:text-5xl font-telegraf font-bold uppercase tracking-tighter hover:text-[#B9EE01] transition-transform duration-700 cursor-pointer ${isMenuOpen ? 'translate-y-0' : 'translate-y-[120%]'}`} style={{ transitionDelay: `${isMenuOpen ? 300 + (idx * 100) : 0}ms` }} onClick={() => setIsMenuOpen(false)}>
+              <a 
+                href={item === 'Start Project' ? '#contact' : `#${item.toLowerCase()}`} 
+                className={`block text-3xl md:text-5xl font-telegraf font-bold uppercase tracking-tighter hover:text-[#B9EE01] cursor-pointer blur-scroll transition-all`} 
+                style={{ 
+                  transitionDelay: `${isMenuOpen ? 300 + (idx * 100) : 0}ms`,
+                  transitionDuration: '2.2s',
+                  transitionTimingFunction: 'cubic-bezier(0.16, 1, 0.3, 1)',
+                  opacity: isMenuOpen ? 1 : 0,
+                  filter: isMenuOpen ? 'blur(0)' : 'blur(40px)',
+                  transform: isMenuOpen ? 'translateY(0) scale(1)' : 'translateY(30px) scale(1.05)',
+                  letterSpacing: isMenuOpen ? 'normal' : '0.15em'
+                }} 
+                onClick={() => setIsMenuOpen(false)}>
                 {item}
               </a>
             </div>
@@ -503,7 +579,7 @@ const App: React.FC = () => {
       <section className="relative min-h-screen flex items-center pt-24 overflow-hidden z-10">
         <div className="container max-w-screen-xl mx-auto px-6 relative z-10">
           <div className="w-full">
-            <h1 className={`${headingScale} mb-2 max-w-6xl`}>
+            <h1 className={`${headingScale} mb-2 max-w-6xl reveal-item blur-scroll`}>
               DIGITAL <br />
               <span className="flex flex-wrap items-center gap-x-8">
                 <span className="text-[#B9EE01] neon-text-glow">EVOLUTION</span>
@@ -512,7 +588,7 @@ const App: React.FC = () => {
               FOR BRANDS
             </h1>
             <div className="flex flex-col gap-6 mt-4">
-              <p className={`font-telegraf mb-8 ${descTypography} !max-w-lg`}>
+              <p className={descTypography + " blur-scroll"}>
                 Strategic design partner for startups ready to redefine their industry through high-performance digital ecosystems.
               </p>
               <button className={`${primaryBtn} self-start`}>
@@ -525,14 +601,14 @@ const App: React.FC = () => {
       </section>
 
       {/* Services Section */}
-      <section id="services" className="py-40 relative z-10">
+      <section id="services" className="py-20 md:py-40 relative z-10">
         <div className="container max-w-screen-xl mx-auto px-6">
-          <div className="flex flex-col gap-4 mb-24">
+          <div className="flex flex-col gap-4 mb-12 md:mb-24">
             <div>
                <span className={sectionLabel}>Capabilities</span>
-               <h2 className={headingScale}>Disruptive <br/> Thinking.</h2>
+               <h2 className={`${headingScale} leading-[0.8] reveal-item blur-scroll`}>Disruptive <br/> Thinking.</h2>
             </div>
-            <p className={`font-telegraf ${descTypography}`}>
+            <p className={descTypography + " blur-scroll"}>
               Modern brands require more than just aesthetic. We build scalable digital products that prioritize conversion and brand longevity.
             </p>
           </div>
@@ -552,25 +628,25 @@ const App: React.FC = () => {
       </section>
 
       {/* Projects Section */}
-      <section id="work" className="py-40 relative overflow-hidden z-20">
+      <section id="work" className="py-20 md:py-40 relative overflow-hidden z-20">
         <div className="container max-w-screen-xl mx-auto px-6">
-          <div className="flex flex-col gap-4 mb-24">
+          <div className="flex flex-col gap-4 mb-12 md:mb-24">
             <div>
                <span className={sectionLabel}>Selected Work</span>
-               <h2 className={headingScale}>Featured <br/> Case Studies.</h2>
+               <h2 className={`${headingScale} leading-[0.8] reveal-item blur-scroll`}>Featured <br/> Case Studies.</h2>
             </div>
             <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
-              <p className={`font-telegraf ${descTypography}`}>
+              <p className={descTypography + " blur-scroll"}>
                 A curated selection of digital experiences where strategy, engineering, and bold design converge.
               </p>
-              <button className={`${primaryBtn} !px-8 !py-4 whitespace-nowrap`}>
+              <button className={`${primaryBtn} !px-8 !py-4 whitespace-nowrap self-start`}>
                 <span className="relative z-10">Explore All</span> 
                 <ArrowRight size={14} className="relative z-10 transition-transform duration-300 group-hover:translate-x-1" />
               </button>
             </div>
           </div>
 
-          <div className="flex flex-col gap-32">
+          <div className="flex flex-col gap-20 md:gap-32">
             {projects.map((project, idx) => (
               <div key={idx} className="group relative cursor-pointer">
                 <div className="aspect-[21/9] w-full overflow-hidden relative transition-transform duration-700 ease-out group-hover:scale-[1.01] bg-neutral-900">
@@ -585,11 +661,11 @@ const App: React.FC = () => {
                         <div className="flex gap-3 mb-6">
                           {project.tags.map(tag => <span key={tag} className="text-[10px] px-3 py-1 border border-white/20 bg-white/5 backdrop-blur-md uppercase tracking-widest font-bold text-white/90">{tag}</span>)}
                         </div>
-                        <h3 className="text-5xl md:text-7xl font-teko uppercase font-bold text-white tracking-tight leading-none mb-2">{project.title}</h3>
+                        <h3 className="text-5xl md:text-7xl font-teko uppercase font-bold text-white tracking-tight leading-[0.8] mb-2 blur-scroll reveal-item">{project.title}</h3>
                       </div>
                       <div className="bg-black/60 backdrop-blur-2xl p-8 border border-white/10 max-w-sm transition-all duration-500 transform translate-y-12 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 hidden md:block">
                         <p className="text-[10px] uppercase tracking-[0.4em] font-bold mb-4 text-[#B9EE01]">Insight</p>
-                        <p className="text-sm font-telegraf leading-relaxed text-white/95 mb-8">{project.description}</p>
+                        <p className="text-sm font-telegraf leading-relaxed text-white/95 mb-8 blur-scroll reveal-item">{project.description}</p>
                         <div className="flex items-center gap-3 text-[#B9EE01] text-[10px] uppercase font-bold tracking-widest group/link cursor-pointer">
                           View Case Study <ArrowUpRight size={16} className="group-hover/link:translate-x-1 group-hover/link:-translate-y-1 transition-transform" />
                         </div>
@@ -598,7 +674,7 @@ const App: React.FC = () => {
                   </div>
                 </div>
                 <div className="md:hidden mt-6">
-                   <p className={`font-telegraf leading-relaxed ${descTypography}`}>{project.description}</p>
+                   <p className={descTypography + " blur-scroll"}>{project.description}</p>
                 </div>
               </div>
             ))}
@@ -606,43 +682,43 @@ const App: React.FC = () => {
         </div>
       </section>
 
-      <section className="py-20 overflow-hidden z-20">
+      <section className="py-12 md:py-20 overflow-hidden z-20">
         <div className="flex whitespace-nowrap animate-infinite-scroll">
           {[1,2,3,4].map(i => (
             <div key={i} className="flex items-center gap-16 px-8">
-              <span className="text-5xl md:text-6xl font-teko uppercase opacity-30 font-bold">Innovation</span>
-              <span className="text-5xl md:text-6xl font-teko uppercase opacity-30 font-bold">Scale</span>
+              <span className="text-5xl md:text-6xl font-teko uppercase opacity-30 font-bold blur-scroll reveal-item">Innovation</span>
+              <span className="text-5xl md:text-6xl font-teko uppercase opacity-30 font-bold blur-scroll reveal-item">Scale</span>
             </div>
           ))}
         </div>
       </section>
 
-      <footer id="contact" className="pt-40 pb-12 relative overflow-hidden z-20">
+      <footer id="contact" className="pt-20 md:pt-40 pb-12 relative overflow-hidden z-20">
         <div className="container max-w-screen-xl mx-auto px-6 relative z-10">
-          <div className="flex flex-col gap-4 mb-24">
+          <div className="flex flex-col gap-4 mb-12 md:mb-24">
             <div>
                <span className={sectionLabel}>Get in Touch</span>
-               <h2 className={headingScale}>Let's start <br/> <span className="text-[#B9EE01]">the revolution.</span></h2>
+               <h2 className={`${headingScale} leading-[0.8] reveal-item blur-scroll`}>Let's start <br/> <span className="text-[#B9EE01]">the revolution.</span></h2>
             </div>
-            <p className={`font-telegraf ${descTypography}`}>
+            <p className={descTypography + " blur-scroll"}>
               Ready to redefine your digital presence? We are currently accepting new projects and partnerships for the upcoming quarter.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 mb-40 items-start">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 mb-20 md:mb-40 items-start">
             <div className="w-full">
               <div className="flex flex-col gap-10 font-telegraf uppercase tracking-[0.2em] text-[11px] opacity-100">
                 <div>
                   <div className="opacity-70 text-[15px] mb-2 tracking-[0.3em]">Email</div>
-                  <a href="mailto:hello@revox.agency" className="text-lg hover:text-[#B9EE01] transition-colors cursor-pointer">hello@revox.agency</a>
+                  <a href="mailto:hello@revox.agency" className="text-lg hover:text-[#B9EE01] transition-colors cursor-pointer blur-scroll reveal-item">hello@revox.agency</a>
                 </div>
                 <div>
                   <div className="opacity-70 text-[15px] mb-2 tracking-[0.3em]">Phone</div>
-                  <a href="tel:+442071234567" className="text-lg hover:text-[#B9EE01] transition-colors cursor-pointer">+44 20 7123 4567</a>
+                  <a href="tel:+442071234567" className="text-lg hover:text-[#B9EE01] transition-colors cursor-pointer blur-scroll reveal-item">+44 20 7123 4567</a>
                 </div>
                 <div>
                   <div className="opacity-70 text-[15px] mb-2 tracking-[0.3em]">Address</div>
-                  <p className="text-lg">124 Innovation Drive, London, E1 6AN</p>
+                  <p className="text-lg blur-scroll reveal-item">124 Innovation Drive, London, E1 6AN</p>
                 </div>
               </div>
             </div>
@@ -653,7 +729,7 @@ const App: React.FC = () => {
                   <input key={label} type="text" placeholder={label.toUpperCase()} className="w-full bg-transparent border-b-2 pb-5 pt-3 outline-none focus:border-[#B9EE01] placeholder:text-white/60 transition-all text-sm uppercase" style={{ borderColor: 'rgba(255, 255, 255, 0.4)' }} />
                 ))}
                 <textarea placeholder="PROJECT DETAILS" rows={4} className="w-full bg-transparent border-b-2 pb-5 pt-3 outline-none focus:border-[#B9EE01] placeholder:text-white/60 resize-none transition-all text-sm uppercase" style={{ borderColor: 'rgba(255, 255, 255, 0.4)' }}></textarea>
-                <button type="submit" className={primaryBtn}>
+                <button type="submit" className={`${primaryBtn} self-start`}>
                   <span className="relative z-10">Submit Request</span> 
                   <ArrowRight size={16} className="relative z-10 transition-transform duration-300 group-hover:translate-x-1" />
                 </button>
@@ -663,7 +739,7 @@ const App: React.FC = () => {
 
           <div className="pt-12 flex flex-col md:flex-row justify-between items-center gap-8 text-[10px] uppercase tracking-[0.3em] font-bold border-t border-white/10">
             <Logo sizeClass="h-8" textClass="text-3xl" brandColor={primaryGreen} />
-            <p className="opacity-100">© 2024 REVOX AGNCY. ALL RIGHTS RESERVED.</p>
+            <p className="opacity-100 blur-scroll reveal-item">© 2024 REVOX AGNCY. ALL RIGHTS RESERVED.</p>
           </div>
         </div>
       </footer>
