@@ -211,7 +211,7 @@ const ServiceCard = ({ icon, title, items, cardBg, primaryGreen, darkMode }: any
             {React.cloneElement(icon as any, { size: 44, strokeWidth: 1.5 })}
           </div>
           <h3 className="text-4xl font-teko uppercase font-bold mb-6 tracking-wide leading-[0.8] blur-scroll reveal-item">{title}</h3>
-          <ul className={`space-y-3 font-telegraf text-sm uppercase tracking-[0.15em] transition-opacity group-hover:opacity-100 ${darkMode ? "opacity-70" : "opacity-90"} blur-scroll reveal-item`}>
+          <ul className={`space-y-3 font-space text-sm uppercase tracking-[0.15em] transition-opacity group-hover:opacity-100 ${darkMode ? "opacity-70" : "opacity-90"} blur-scroll reveal-item`}>
             {items.map((item: string, i: number) => <li key={i}>{item}</li>)}
           </ul>
         </div>
@@ -298,11 +298,11 @@ const App: React.FC = () => {
   const glowColor = darkMode ? primaryGreen : "#00FF41";
 
   const headingScale = "text-6xl md:text-8xl font-teko uppercase font-bold leading-[0.8]";
-  const sectionLabel = "font-telegraf text-[#B9EE01] font-bold tracking-[0.4em] uppercase text-base mb-3 block reveal-item blur-scroll";
+  const sectionLabel = "font-space text-[#B9EE01] font-bold tracking-[0.4em] uppercase text-base mb-3 block reveal-item blur-scroll";
   const descColor = darkMode ? "text-white/60" : "text-white";
   
   // Unified descriptions with reveal-item AND blur-scroll effects
-  const descTypography = `font-telegraf text-xl md:text-2xl leading-snug max-w-lg ${descColor} reveal-item blur-scroll`;
+  const descTypography = `font-space text-xl md:text-2xl leading-snug max-w-lg ${descColor} reveal-item blur-scroll`;
   
   const primaryBtn = "group px-10 py-5 bg-[#B9EE01] text-black font-bold uppercase tracking-widest text-[14px] flex items-center justify-center gap-3 transition-all active:scale-[0.96] overflow-hidden relative select-none cursor-pointer";
 
@@ -416,13 +416,13 @@ const App: React.FC = () => {
         <div className="w-full px-6 flex justify-between items-center h-full">
           <Logo sizeClass="h-8" brandColor={primaryGreen} className="pointer-events-auto" />
           <div className="flex items-center gap-6 md:gap-8 h-full pointer-events-auto">
-            <button onClick={toggleTheme} className="p-2 rounded-full border border-current opacity-80 hover:opacity-100 hover:text-[#B9EE01] hover:border-[#B9EE01] transition-all flex items-center justify-center cursor-pointer">
+            <button onClick={toggleTheme} className="p-2 rounded-full border border-[#B9EE01] text-[#B9EE01] opacity-80 hover:opacity-100 transition-all flex items-center justify-center cursor-pointer">
               {darkMode ? <Lightbulb size={14} /> : <Moon size={14} />}
             </button>
             <button className="z-[110] flex items-center group cursor-pointer" onClick={() => setIsMenuOpen(!isMenuOpen)}>
               <div className="relative w-8 h-8 flex flex-col justify-center items-end gap-[6px]">
-                <div className={`h-[2px] transition-all duration-500 ease-out ${isMenuOpen ? 'w-6 translate-y-[4px] rotate-45 bg-[#B9EE01]' : 'w-8 bg-white'}`} />
-                <div className={`h-[2px] transition-all duration-500 ease-out ${isMenuOpen ? 'w-6 -translate-y-[4px] -rotate-45 bg-[#B9EE01]' : 'w-5 group-hover:w-8 bg-white'}`} />
+                <div className={`h-[2px] bg-[#B9EE01] transition-all duration-500 ease-out ${isMenuOpen ? 'w-6 translate-y-[4px] rotate-45' : 'w-8'}`} />
+                <div className={`h-[2px] bg-[#B9EE01] transition-all duration-500 ease-out ${isMenuOpen ? 'w-6 -translate-y-[4px] -rotate-45' : 'w-5 group-hover:w-8'}`} />
               </div>
             </button>
           </div>
@@ -436,7 +436,7 @@ const App: React.FC = () => {
           {['Services', 'Work', 'Approach', 'Contact', 'Start Project'].map((item, idx) => (
             <div key={item} className="overflow-hidden py-2">
               <a href={item === 'Start Project' ? '#contact' : `#${item.toLowerCase()}`} 
-                className={`block text-3xl md:text-5xl font-telegraf font-bold uppercase tracking-tighter hover:text-[#B9EE01] cursor-pointer blur-scroll transition-all`} 
+                className={`block text-3xl md:text-5xl font-space font-bold uppercase tracking-tighter hover:text-[#B9EE01] cursor-pointer blur-scroll transition-all`} 
                 style={{ 
                   transitionDelay: isMenuOpen ? `${300 + (idx * 100)}ms` : '0ms',
                   transitionDuration: isMenuOpen ? '2.2s' : '0.5s',
@@ -531,7 +531,7 @@ const App: React.FC = () => {
                       </div>
                       <div className="bg-black/60 backdrop-blur-2xl p-8 border border-white/10 max-w-sm transition-all duration-500 transform translate-y-12 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 hidden md:block">
                         <p className="text-[10px] uppercase tracking-[0.4em] font-bold mb-4 text-[#B9EE01]">Insight</p>
-                        <p className="text-sm font-telegraf leading-relaxed text-white/95 mb-8 reveal-item blur-scroll">{project.description}</p>
+                        <p className="text-sm font-space leading-relaxed text-white/95 mb-8 reveal-item blur-scroll">{project.description}</p>
                         <div className="flex items-center gap-3 text-[#B9EE01] text-[10px] uppercase font-bold tracking-widest group/link cursor-pointer">
                           <span className="reveal-item blur-scroll">View Case Study</span> <ArrowUpRight size={16} className="group-hover/link:translate-x-1 group-hover/link:-translate-y-1 transition-transform" />
                         </div>
@@ -576,27 +576,27 @@ const App: React.FC = () => {
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 mb-20 md:mb-40 items-start">
             <div className="w-full">
-              <div className="flex flex-col gap-10 font-telegraf uppercase tracking-[0.2em] text-[11px] opacity-100">
+              <div className="flex flex-col gap-10 font-space uppercase tracking-[0.2em] text-[11px] opacity-100">
                 <div>
                   <div className="opacity-70 text-[15px] mb-2 tracking-[0.3em]">Email</div>
-                  <a href="mailto:hello@revox.agency" className="text-lg hover:text-[#B9EE01] transition-colors cursor-pointer reveal-item blur-scroll font-telegraf">hello@revox.agency</a>
+                  <a href="mailto:hello@revox.agency" className="text-lg hover:text-[#B9EE01] transition-colors cursor-pointer reveal-item blur-scroll font-space">hello@revox.agency</a>
                 </div>
                 <div>
                   <div className="opacity-70 text-[15px] mb-2 tracking-[0.3em]">Phone</div>
-                  <a href="tel:+442071234567" className="text-lg hover:text-[#B9EE01] transition-colors cursor-pointer reveal-item blur-scroll font-telegraf">+44 20 7123 4567</a>
+                  <a href="tel:+442071234567" className="text-lg hover:text-[#B9EE01] transition-colors cursor-pointer reveal-item blur-scroll font-space">+44 20 7123 4567</a>
                 </div>
                 <div>
                   <div className="opacity-70 text-[15px] mb-2 tracking-[0.3em]">Address</div>
-                  <p className="text-lg reveal-item blur-scroll font-telegraf">124 Innovation Drive, London, E1 6AN</p>
+                  <p className="text-lg reveal-item blur-scroll font-space">124 Innovation Drive, London, E1 6AN</p>
                 </div>
               </div>
             </div>
             <div className="w-full xl:pl-16">
-              <form className="flex flex-col gap-12 font-telegraf" onSubmit={(e) => e.preventDefault()}>
+              <form className="flex flex-col gap-12 font-space" onSubmit={(e) => e.preventDefault()}>
                 {['Your Name', 'Email Address', 'Company / Startup'].map((label) => (
-                  <input key={label} type="text" placeholder={label.toUpperCase()} className="w-full bg-transparent border-b-2 pb-5 pt-3 outline-none focus:border-[#B9EE01] placeholder:text-white/60 transition-all text-sm uppercase font-telegraf" style={{ borderColor: 'rgba(255, 255, 255, 0.4)' }} />
+                  <input key={label} type="text" placeholder={label.toUpperCase()} className="w-full bg-transparent border-b-2 pb-5 pt-3 outline-none focus:border-[#B9EE01] placeholder:text-white/60 transition-all text-sm uppercase font-space" style={{ borderColor: 'rgba(255, 255, 255, 0.4)' }} />
                 ))}
-                <textarea placeholder="PROJECT DETAILS" rows={4} className="w-full bg-transparent border-b-2 pb-5 pt-3 outline-none focus:border-[#B9EE01] placeholder:text-white/60 resize-none transition-all text-sm uppercase font-telegraf" style={{ borderColor: 'rgba(255, 255, 255, 0.4)' }}></textarea>
+                <textarea placeholder="PROJECT DETAILS" rows={4} className="w-full bg-transparent border-b-2 pb-5 pt-3 outline-none focus:border-[#B9EE01] placeholder:text-white/60 resize-none transition-all text-sm uppercase font-space" style={{ borderColor: 'rgba(255, 255, 255, 0.4)' }}></textarea>
                 <button type="submit" className={`${primaryBtn} self-start`}>
                   <span className="reveal-item blur-scroll">Submit Request</span> 
                   <ArrowRight size={16} className="relative z-10 transition-transform duration-300 group-hover:translate-x-1" />
@@ -606,7 +606,7 @@ const App: React.FC = () => {
           </div>
           <div className="pt-12 flex flex-col md:flex-row justify-between items-center gap-8 text-[10px] uppercase tracking-[0.3em] font-bold border-t border-white/10">
             <Logo sizeClass="h-8" brandColor={primaryGreen} />
-            <p className="opacity-100 reveal-item blur-scroll font-telegraf">© 2024 REVOX AGNCY. ALL RIGHTS RESERVED.</p>
+            <p className="opacity-100 reveal-item blur-scroll font-space">© 2024 REVOX AGNCY. ALL RIGHTS RESERVED.</p>
           </div>
         </div>
       </footer>
