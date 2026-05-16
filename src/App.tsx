@@ -17,19 +17,6 @@ import {
  * UTILITY COMPONENTS
  */
 
-const ChevronPattern = ({ color }: { color: string }) => (
-  <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-[0.3] md:opacity-[0.4] select-none">
-    <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <pattern id="chevron-main" x="0" y="0" width="80" height="80" patternUnits="userSpaceOnUse">
-          <path d="M30 20L50 40L30 60" fill="none" stroke={color} strokeWidth="2" />
-        </pattern>
-      </defs>
-      <rect width="100%" height="100%" fill="url(#chevron-main)" />
-    </svg>
-  </div>
-);
-
 const Logo = ({ 
   className = "", 
   sizeClass = "h-8", 
