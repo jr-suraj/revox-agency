@@ -18,7 +18,7 @@ import {
  */
 
 const ChevronPattern = ({ color }: { color: string }) => (
-  <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-[0.1] md:opacity-[0.15] select-none">
+  <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-[0.3] md:opacity-[0.4] select-none">
     <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
       <defs>
         <pattern id="chevron-main" x="0" y="0" width="80" height="80" patternUnits="userSpaceOnUse">
@@ -64,7 +64,7 @@ const Logo = ({
 /**
  * Dynamic Global Background with Liquid/Water-Drop Cursor Effect
  */
-const GlobalBackground = ({ darkMode, glowColor }: { darkMode: boolean; glowColor: string }) => {
+const GlobalBackground = ({ darkMode, glowColor, isMenu = false }: { darkMode: boolean; glowColor: string; isMenu?: boolean }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [isMounted, setIsMounted] = useState(false);
 
@@ -102,7 +102,7 @@ const GlobalBackground = ({ darkMode, glowColor }: { darkMode: boolean; glowColo
   }, []);
 
   return (
-    <div className="fixed inset-0 z-0 pointer-events-none select-none overflow-hidden" ref={containerRef}>
+    <div className={`${isMenu ? 'absolute' : 'fixed'} inset-0 z-0 pointer-events-none select-none overflow-hidden`} ref={containerRef}>
       <svg className="hidden">
         <filter id="water-ripple" x="-20%" y="-20%" width="140%" height="140%">
           <feTurbulence type="fractalNoise" baseFrequency="0.005" numOctaves="3" result="noise">
@@ -121,7 +121,7 @@ const GlobalBackground = ({ darkMode, glowColor }: { darkMode: boolean; glowColo
           width="100%" 
           height="100%" 
           xmlns="http://www.w3.org/2000/svg" 
-          className={darkMode ? "opacity-[0.03]" : "opacity-[0.08]"}
+          className={darkMode ? "opacity-[0.15]" : "opacity-[0.25]"}
           style={{ filter: 'url(#water-ripple)' }}
         >
           <defs>
@@ -431,7 +431,7 @@ const App: React.FC = () => {
 
       {/* Menu Overlay */}
       <div className={`fixed inset-0 z-[90] flex flex-col justify-center items-center px-6 transition-all duration-700 origin-top ${isMenuOpen ? 'scale-y-100 opacity-100' : 'scale-y-0 opacity-0 pointer-events-none'}`} style={{ backgroundColor: bgColor }}>
-        <ChevronPattern color={glowColor} />
+        <GlobalBackground darkMode={darkMode} glowColor={glowColor} isMenu={true} />
         <div className="flex flex-col gap-4 text-center relative z-10 w-full max-w-4xl">
           {['Services', 'Work', 'Approach', 'Contact', 'Start Project'].map((item, idx) => (
             <div key={item} className="overflow-hidden py-2">
@@ -552,8 +552,12 @@ const App: React.FC = () => {
         <div className="flex whitespace-nowrap animate-infinite-scroll items-center h-full">
           {[1,2,3,4,5,6].map(i => (
             <div key={i} className="flex items-center gap-16 px-8 h-full">
-              <span className="text-5xl md:text-7xl font-teko uppercase opacity-[0.4] font-bold leading-none">Innovation</span>
-              <span className="text-5xl md:text-7xl font-teko uppercase opacity-[0.4] font-bold leading-none">Scale</span>
+              <div className="reveal-item">
+                <span className="text-5xl md:text-7xl font-teko uppercase opacity-[0.2] font-bold blur-scroll leading-none block">Innovation</span>
+              </div>
+              <div className="reveal-item">
+                <span className="text-5xl md:text-7xl font-teko uppercase opacity-[0.2] font-bold blur-scroll leading-none block">Scale</span>
+              </div>
             </div>
           ))}
         </div>           
