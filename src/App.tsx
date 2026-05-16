@@ -535,7 +535,7 @@ const App: React.FC = () => {
         </div>
       </section>
 
-      <section className="relative overflow-hidden z-20 bg-white/[0.02] border-y border-white/5 h-32 md:h-48 flex items-center">
+      <section className="relative overflow-hidden z-20 bg-white/[0.05] border-y border-white/5 h-32 md:h-48 flex items-center">
         <div className="flex whitespace-nowrap animate-infinite-scroll items-center h-full">
           {[1,2,3,4,5,6].map(i => (
             <div key={i} className="flex items-center gap-16 px-8 h-full">
